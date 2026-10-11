@@ -41,6 +41,24 @@ docker pull example.com/ghcr/owner/repo:tag   # -> ghcr.io/owner/repo
 Requests go to plain HTTP on `LISTEN_ADDR`; put a TLS-terminating reverse proxy
 or ingress in front for production.
 
+## Docker
+
+```bash
+docker build -t lite-docker-proxy:latest .
+docker run -d --name lite-docker-proxy -p 8080:8080 \
+  -e UPSTREAMS="docker.io=docker,ghcr.io=ghcr" \
+  -e DEFAULT_UPSTREAM=docker.io \
+  -e PROXY_USERNAME=admin \
+  -e PROXY_PASSWORD=secret \
+  lite-docker-proxy:latest
+```
+
+The image runs as an unprivileged user and installs `ca-certificates` (required
+for HTTPS to the upstream registries). The `HEALTHCHECK` calls the built-in
+`lite-docker-proxy healthcheck` subcommand, which probes the unauthenticated
+`GET /healthz` endpoint on `LISTEN_ADDR`. Do not point the health check at
+`/v2/`: it returns `401` when downstream auth is enabled.
+
 ## Behavior
 
 - Only `GET` and `HEAD` are allowed; pushes return `405`.

@@ -115,6 +115,16 @@ func TestRouterDefaultUpstreamForBareName(t *testing.T) {
 	}
 }
 
+func TestRouterHealthzSkipsAuth(t *testing.T) {
+	r := newTestRouter(t, http.NotFoundHandler(), func(cfg *config.Config) {
+		cfg.Username, cfg.Password = "admin", "secret"
+	})
+	rec := doRequest(t, r, http.MethodGet, "/healthz", "", "")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("unauthenticated /healthz status = %d want 200", rec.Code)
+	}
+}
+
 func TestRouterRejectsPush(t *testing.T) {
 	r := newTestRouter(t, http.NotFoundHandler(), nil)
 	rec := doRequest(t, r, http.MethodPost, "/v2/test/blobs/uploads/", "", "")

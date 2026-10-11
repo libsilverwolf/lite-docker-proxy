@@ -17,9 +17,15 @@ func NewRouter(cfg *config.Config, proxy *Proxy, logger *logrus.Logger) *gin.Eng
 	r.Use(gin.Recovery())
 
 	auth := AuthMiddleware(cfg.Username, cfg.Password)
+	r.GET("/healthz", healthHandler)
 	r.Any("/v2", auth, pingHandler)
 	r.Any("/v2/*path", auth, dispatchHandler(cfg, proxy))
 	return r
+}
+
+// healthHandler is an unauthenticated liveness endpoint for HEALTHCHECK/probes.
+func healthHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
 func pingHandler(c *gin.Context) {
