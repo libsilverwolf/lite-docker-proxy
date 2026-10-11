@@ -67,3 +67,7 @@ for HTTPS to the upstream registries). The `HEALTHCHECK` calls the built-in
   through to the client.
 - Docker Hub single-segment names are expanded with the `library/` namespace and
   requests use `registry-1.docker.io`.
+
+## LICENSE
+
+MIT
