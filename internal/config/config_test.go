@@ -75,6 +75,17 @@ func TestUpstreamCredentials(t *testing.T) {
 	}
 }
 
+func TestUpstreamBaseURL(t *testing.T) {
+	hub := Upstream{Host: "docker.io", Alias: "docker"}
+	if got := hub.BaseURL().String(); got != "https://registry-1.docker.io" {
+		t.Fatalf("docker hub base URL = %q", got)
+	}
+	internal := Upstream{Host: "registry.internal:5000", Scheme: "http", Alias: "internal"}
+	if got := internal.BaseURL().String(); got != "http://registry.internal:5000" {
+		t.Fatalf("internal base URL = %q", got)
+	}
+}
+
 func TestUpstreamSchemeInHost(t *testing.T) {
 	env := map[string]string{"UPSTREAMS": "http://registry.internal:5000=internal"}
 	cfg, err := load(mapGetenv(env))
